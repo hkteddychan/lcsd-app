@@ -29,16 +29,19 @@ jobs:
 
       - name: Install and sync
         run: |
-          npm install
+          npm install --loglevel=verbose
           npx cap sync android
+        env:
+          npm_config_foreground_scripts: 'true'
 
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --info 2>&1 | tail -50
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: LCSD-SportsCentre-APK
