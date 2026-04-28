@@ -27,18 +27,24 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install and sync
+      - name: Install dependencies
         run: |
-          npm install --loglevel=verbose
-          npx cap sync android
-        env:
-          npm_config_foreground_scripts: 'true'
+          echo "=== node version ==="
+          node --version
+          echo "=== npm version ==="
+          npm --version
+          echo "=== npm install ==="
+          npm install --prefer-offline --no-audit --progress=false 2>&1
+          echo "=== cap sync ==="
+          npx cap sync android 2>&1
+          echo "=== sync done ==="
+          ls -la android/app/src/main/assets/
 
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --info 2>&1 | tail -50
+          ./gradlew assembleDebug 2>&1
 
       - name: Upload APK
         if: success()
