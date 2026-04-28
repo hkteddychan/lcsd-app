@@ -10,8 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout
+      - name: Checkout lcsd-app
         uses: actions/checkout@v4
+        with:
+          repository: hkteddychan/lcsd-app
+          path: lcsd-app
+
+      - name: Checkout web app (LCSD-Sports-Centre)
+        uses: actions/checkout@v4
+        with:
+          repository: hkteddychan/LCSD-Sports-Centre
+          path: LCSD-Sports-Centre
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
@@ -29,26 +38,19 @@ jobs:
 
       - name: Install dependencies
         run: |
-          echo "=== node version ==="
-          node --version
-          echo "=== npm version ==="
-          npm --version
-          echo "=== npm install ==="
-          npm install --prefer-offline --no-audit --progress=false 2>&1
-          echo "=== cap sync ==="
-          npx cap sync android 2>&1
-          echo "=== sync done ==="
-          ls -la android/app/src/main/assets/
+          cd lcsd-app
+          npm install --prefer-offline --no-audit --progress=false
+          npx cap sync android
 
       - name: Build APK
         run: |
-          cd android
+          cd lcsd-app/android
           chmod +x gradlew
-          ./gradlew assembleDebug 2>&1
+          ./gradlew assembleDebug
 
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: LCSD-SportsCentre-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk
