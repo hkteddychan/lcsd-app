@@ -53,28 +53,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          APK_PATH="lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk"
-          echo "APK size: $(ls -lh $APK_PATH)"
+          APK="lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk"
+          echo "APK: $(ls -lh $APK)"
           
-          # Delete existing release if exists
-          curl -s -X DELETE \
-            -H "Authorization: token $GITHUB_TOKEN" \
+          # Delete old release if exists
+          curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
             "https://api.github.com/repos/hkteddychan/lcsd-app/releases/tags/v1.0.0" || true
           
-          # Create new release
-          RESPONSE=$(curl -s -X POST \
+          # Create release
+          REL=$(curl -s -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{"tag_name":"v1.0.0","name":"LCSD Sports Centre v1.0.0","body":"Android APK - LCSD Sports Centre Map","draft":false}' \
             "https://api.github.com/repos/hkteddychan/lcsd-app/releases")
-          echo "Release response: $RESPONSE"
           
-          UPLOAD_URL=$(echo $RESPONSE | grep -o '"upload_url":"[^"]*"' | cut -d'"' -f4)
-          echo "Upload URL: $UPLOAD_URL"
+          REL_ID=$(echo $REL | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+          echo "Release ID: $REL_ID"
           
-          # Upload asset
+          # Upload APK to release
           curl -s -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Content-Type: application/vnd.android.package-archive" \
-            --data-binary "@$APK_PATH" \
-            "https://uploads.github.com/repos/hkteddychan/lcsd-app/releases/attachments"
+            -H "Accept: application/vnd.github+json" \
+            --data-binary "@$APK" \
+            "https://uploads.github.com/repos/hkteddychan/lcsd-app/releases/$REL_ID/assets?name=LCSD-SportsCentre.apk"
