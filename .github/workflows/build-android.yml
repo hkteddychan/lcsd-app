@@ -53,31 +53,16 @@ jobs:
         env:
           JAVA_HOME: /opt/java/openjdk
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Upload to Release via GitHub CLI
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v1.0.0
-          release_name: LCSD Sports Centre v1.0.0
-          body: Android APK for LCSD Sports Centre Map
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        if: success()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk
-          asset_name: LCSD-SportsCentre.apk
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Debug
-        if: always()
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "APK: $(ls -lh lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk 2>/dev/null || echo 'MISSING')"
+          gh auth status
+          cd lcsd-app
+          gh release create v1.0.0 \
+            --repo hkteddychan/lcsd-app \
+            --title "LCSD Sports Centre v1.0.0" \
+            --notes "Android APK for LCSD Sports Centre Map" \
+            android/app/build/outputs/apk/debug/app-debug.apk
