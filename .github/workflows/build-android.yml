@@ -50,19 +50,18 @@ jobs:
           cd lcsd-app/android
           chmod +x gradlew
           ./gradlew assembleDebug
-        env:
-          JAVA_HOME: /opt/java/openjdk
 
-      - name: Upload to Release via GitHub CLI
+      - name: Upload via GitHub CLI
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh auth status
-          cd lcsd-app
           gh release create v1.0.0 \
             --repo hkteddychan/lcsd-app \
             --title "LCSD Sports Centre v1.0.0" \
-            --notes "Android APK for LCSD Sports Centre Map" \
-            android/app/build/outputs/apk/debug/app-debug.apk
+            --notes "Android APK" \
+            lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk || \
+          gh release upload v1.0.0 \
+            lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk \
+            --repo hkteddychan/lcsd-app
