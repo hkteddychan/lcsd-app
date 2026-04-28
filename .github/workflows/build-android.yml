@@ -8,7 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout lcsd-app
         uses: actions/checkout@v4
@@ -50,53 +52,24 @@ jobs:
           ./gradlew assembleDebug
 
       - name: Upload to Release
-        uses: actions/github-script@v7
+        if: success()
+        uses: softprops/action-gh-release@v2
         with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const apkPath = 'lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk';
-            const stat = fs.statSync(apkPath);
-            console.log('APK size:', stat.size);
+          files: lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk
+          name: LCSD Sports Centre v1.0.0
+          body: |
+            Android APK for LCSD Sports Centre Map
 
-            // Delete existing release
-            try {
-              const releases = await github.rest.repos.listReleases({
-                owner: 'hkteddychan',
-                repo: 'lcsd-app'
-              });
-              const existing = releases.data.find(r => r.tag_name === 'v1.0.0');
-              if (existing) {
-                await github.rest.repos.deleteRelease({
-                  owner: 'hkteddychan',
-                  repo: 'lcsd-app',
-                  release_id: existing.id
-                });
-                console.log('Deleted old release');
-              }
-            } catch(e) { console.log('No old release to delete'); }
+            Features:
+            - Badminton, Basketball, Volleyball availability
+            - 8-day booking slots
+            - District filter + search
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            // Create release
-            const release = await github.rest.repos.createRelease({
-              owner: 'hkteddychan',
-              repo: 'lcsd-app',
-              tag_name: 'v1.0.0',
-              name: 'LCSD Sports Centre v1.0.0',
-              body: 'Android APK for LCSD Sports Centre Map',
-              draft: false
-            });
-            console.log('Created release:', release.data.id);
-
-            // Upload asset
-            const upload = await github.rest.repos.uploadReleaseAsset({
-              owner: 'hkteddychan',
-              repo: 'lcsd-app',
-              release_id: release.data.id,
-              name: 'LCSD-SportsCentre.apk',
-              data: fs.readFileSync(apkPath),
-              headers: {
-                'content-type': 'application/vnd.android.package-archive',
-                'content-length': stat.size
-              }
-            });
-            console.log('Uploaded:', upload.data.browser_download_url);
+      - name: Debug Release Status
+        if: always()
+        run: |
+          echo "=== Release Debug ==="
+          echo "APK: $(ls -lh lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk 2>/dev/null || echo 'MISSING')"
+          echo "Release assets: $(gh release view v1.0.0 --repo hkteddychan/lcsd-app --json assets --jq '.assets | length' 2>/dev/null || echo '0')"
