@@ -1,0 +1,10 @@
+node_modules/
+platforms/
+plugins/
+.idea/
+*.iml
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/

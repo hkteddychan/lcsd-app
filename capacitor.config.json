@@ -1,0 +1,8 @@
+{
+  "appId": "com.lcsd.sports",
+  "appName": "LCSD",
+  "webDir": "../LCSD-Sports-Centre",
+  "server": {
+    "androidScheme": "https"
+  }
+}

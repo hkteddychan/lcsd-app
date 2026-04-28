@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LCSD</string>
+    <string name="title_activity_main">LCSD</string>
+    <string name="package_name">com.lcsd.sports</string>
+    <string name="custom_url_scheme">com.lcsd.sports</string>
+</resources>
