@@ -21,8 +21,8 @@ jobs:
       - name: Checkout web app
         uses: actions/checkout@v4
         with:
-          repository: hkteddychan/LCSD-Sports-Centre
-          path: LCSD-Sports-Centre
+          repository: hkteddychan/Parking-Map
+          path: Parking-Map
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
