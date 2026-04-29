@@ -51,17 +51,20 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: parking-map-apk
+          path: lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 1
+
       - name: Upload via GitHub CLI
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v1.0.0 \
-            --repo hkteddychan/lcsd-app \
-            --title "LCSD Sports Centre v1.0.0" \
-            --notes "Android APK" \
-            lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk || \
-          gh release upload v1.0.0 \
-            lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk \
-            --repo hkteddychan/lcsd-app
+          gh release view v1.0.0 --repo hkteddychan/lcsd-app && \
+          gh release upload v1.0.0 lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk --repo hkteddychan/lcsd-app || \
+          gh release create v1.0.0 --repo hkteddychan/lcsd-app --title "Parking Map v1.0.0" --notes "Android APK" && \
+          gh release upload v1.0.0 lcsd-app/android/app/build/outputs/apk/debug/app-debug.apk --repo hkteddychan/lcsd-app
