@@ -1,7 +1,7 @@
 {
   "appId": "com.lcsd.sports",
   "appName": "LCSD",
-  "webDir": "../LCSD-Sports-Centre",
+  "webDir": "../Parking-Map",
   "server": {
     "androidScheme": "https"
   }
